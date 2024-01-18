@@ -1,0 +1,46 @@
+name: Did version change
+description: This workflow checks if the version in pyproject.toml has changed.
+
+outputs:
+  is_version_greater:
+    description: 'Whether the version has changed'
+    value: ${{ steps.check_version.outputs.is_version_greater }}
+  version:
+    description: 'The current version'
+    value: ${{ steps.current_version.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 2
+
+  - name: Get previous version
+    id: prev_version
+    run: |
+      prev_version=$(git show HEAD~ -- pyproject.toml | grep -E '\+version' | cut -d '"' -f 2)
+      echo "previous version was $prev_version"
+      echo "version=$prev_version" >> "$GITHUB_OUTPUT"
+    shell: bash
+
+  - name: Get current version
+    id: current_version
+    run: |
+      current_version=$(cat pyproject.toml | grep -E '^version' | cut -d '"' -f 2)
+      echo "current version is $current_version"
+      echo "version=$current_version" >> "$GITHUB_OUTPUT"
+    shell: bash
+
+  - name: Check if new version is greater
+    id: check_version
+    run: |
+      pip install semver
+      is_greater=$(python -m semver compare ${{ steps.current_version.outputs.version }} ${{ steps.prev_version.outputs.version }})
+      echo "is_version_greater=$(test $is_greater -eq 1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+    shell: bash
+
+branding:
+  icon: trending-up
+  color: blue

@@ -30,7 +30,7 @@ runs:
   - name: Get previous version
     id: prev_version
     run: |
-      prev_version=$(git show HEAD~ -- ${{ inputs.json_file }} | jq -r "${{ inputs.jq_expr }}")
+      prev_version=$(git show HEAD^:${{ inputs.json_file }} | jq -r "${{ inputs.jq_expr }}")
       echo "previous version was $prev_version"
       echo "version=$prev_version" >> "$GITHUB_OUTPUT"
     shell: bash

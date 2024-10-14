@@ -30,7 +30,7 @@ runs:
   - name: Get previous version
     id: prev_version
     run: |
-      prev_version=$(git show HEAD~ -- ${{ github.event.inputs.json_file }} | jq -r '${{ github.event.inputs.jq_expr }}')
+      prev_version=$(git show HEAD~ -- ${{ github.event.inputs.json_file }} | jq -r "${{ github.event.inputs.jq_expr }}")
       echo "previous version was $prev_version"
       echo "version=$prev_version" >> "$GITHUB_OUTPUT"
     shell: bash
@@ -38,7 +38,7 @@ runs:
   - name: Get current version
     id: current_version
     run: |
-      current_version=$(jq -r '${{ github.event.inputs.test_suite }}' ${{ github.event.inputs.json_file }} )
+      current_version=$(jq -r "${{ github.event.inputs.test_suite }}" ${{ github.event.inputs.json_file }} )
       echo "current version is $current_version"
       echo "version=$current_version" >> "$GITHUB_OUTPUT"
     shell: bash

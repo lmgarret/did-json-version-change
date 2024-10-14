@@ -1,6 +1,16 @@
 name: Did version change
 description: This workflow checks if the version in pyproject.toml has changed.
 
+inputs:
+  json_file:
+    description: 'JSON file'
+    required: false
+    default: 'package.json'
+  jq_expr:
+    description: 'jq expression to get the version'
+    required: false
+    default: '.version'
+
 outputs:
   is_version_greater:
     description: 'Whether the version has changed'
@@ -20,7 +30,7 @@ runs:
   - name: Get previous version
     id: prev_version
     run: |
-      prev_version=$(git show HEAD~ -- pyproject.toml | grep -E '\+version' | cut -d '"' -f 2)
+      prev_version=$(git show HEAD~ -- ${{ github.event.inputs.json_file }} | jq -r '${{ github.event.inputs.jq_expr }}')
       echo "previous version was $prev_version"
       echo "version=$prev_version" >> "$GITHUB_OUTPUT"
     shell: bash
@@ -28,7 +38,7 @@ runs:
   - name: Get current version
     id: current_version
     run: |
-      current_version=$(cat pyproject.toml | grep -E '^version' | cut -d '"' -f 2)
+      current_version=$(jq -r '${{ github.event.inputs.test_suite }}' ${{ github.event.inputs.json_file }} )
       echo "current version is $current_version"
       echo "version=$current_version" >> "$GITHUB_OUTPUT"
     shell: bash
